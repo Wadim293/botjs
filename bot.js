@@ -37,9 +37,10 @@ async function createTableIfNotExists() {
 const app = express();
 app.use(bodyParser.json());
 
-// Инициализация Telegram-бота на вебхуке
-const bot = new TelegramBot(TOKEN, { webHook: { port: 3000 } });
+// Инициализация Telegram-бота
+const bot = new TelegramBot(TOKEN);
 
+// Установка webhook
 bot.setWebHook(WEBHOOK_URL).then(() => {
     console.log('Webhook set:', WEBHOOK_URL);
 }).catch(err => {
@@ -57,10 +58,8 @@ bot.on('message', async (msg) => {
     const chatId = msg.chat.id;
     const text = msg.text;
 
-    // Автосоздание таблицы при первом запросе
     await createTableIfNotExists();
 
-    // Вставка сообщения в БД
     try {
         await pool.query(
             'INSERT INTO messages(chat_id, text) VALUES($1, $2)',
@@ -73,6 +72,8 @@ bot.on('message', async (msg) => {
     }
 });
 
-app.listen(3000, () => {
-    console.log('Сервер слушает порт 3000');
+// Запуск сервера
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Сервер слушает порт ${PORT}`);
 });
