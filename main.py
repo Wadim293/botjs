@@ -1,5 +1,5 @@
 import asyncio
-from aiogram import Bot, Dispatcher, types
+from aiogram import Bot, Dispatcher, types, F
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
@@ -16,6 +16,51 @@ bot = Bot(
     default=DefaultBotProperties(parse_mode=ParseMode.HTML)
 )
 dp = Dispatcher(storage=MemoryStorage())
+
+PHOTO_URL = "https://i.postimg.cc/zXZ9mLcn/66930cd0-5ed3-4919-96c1-003241670dc1.png"  # свое фото
+
+@dp.message(F.text == '/start')
+async def start_handler(message: types.Message):
+    kb = types.InlineKeyboardMarkup(
+        inline_keyboard=[
+            [types.InlineKeyboardButton(text="Перейти", callback_data="open_new")]
+        ]
+    )
+    await message.answer_photo(
+        photo=PHOTO_URL,
+        caption="Вот тебе фотка через URL, старик!",
+        reply_markup=kb
+    )
+
+@dp.callback_query(F.data == "open_new")
+async def open_new_handler(callback_query: types.CallbackQuery):
+    await callback_query.message.delete()
+    kb = types.InlineKeyboardMarkup(
+        inline_keyboard=[
+            [types.InlineKeyboardButton(text="Назад", callback_data="back")]
+        ]
+    )
+    await bot.send_photo(
+        chat_id=callback_query.from_user.id,
+        photo=PHOTO_URL,
+        caption="Новое фото с кнопкой 'Назад'",
+        reply_markup=kb
+    )
+
+@dp.callback_query(F.data == "back")
+async def back_handler(callback_query: types.CallbackQuery):
+    await callback_query.message.delete()
+    kb = types.InlineKeyboardMarkup(
+        inline_keyboard=[
+            [types.InlineKeyboardButton(text="Перейти", callback_data="open_new")]
+        ]
+    )
+    await bot.send_photo(
+        chat_id=callback_query.from_user.id,
+        photo=PHOTO_URL,
+        caption="Вот тебе фотка через URL, старик!",
+        reply_markup=kb
+    )
 
 @dp.message()
 async def handle_message(message: types.Message):
