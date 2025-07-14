@@ -17,10 +17,8 @@ const PG_CONFIG = {
     }
 };
 
-// Инициализация базы
 const pool = new Pool(PG_CONFIG);
 
-// Функция автосоздания таблицы, если её нет
 async function createTableIfNotExists() {
     const query = `
         CREATE TABLE IF NOT EXISTS messages (
@@ -33,30 +31,80 @@ async function createTableIfNotExists() {
     await pool.query(query);
 }
 
-// Express-приложение
 const app = express();
 app.use(bodyParser.json());
 
-// Инициализация Telegram-бота
 const bot = new TelegramBot(TOKEN);
 
-// Установка webhook
 bot.setWebHook(WEBHOOK_URL).then(() => {
     console.log('Webhook set:', WEBHOOK_URL);
 }).catch(err => {
     console.error('Webhook set error:', err);
 });
 
-// Webhook-роут для Telegram
 app.post('/bot' + TOKEN, (req, res) => {
     bot.processUpdate(req.body);
     res.sendStatus(200);
 });
 
-// Тестовый обработчик сообщений
+bot.onText(/\/start/, async (msg) => {
+    const chatId = msg.chat.id;
+
+    const photoUrl = 'https://i.postimg.cc/zXZ9mLcn/66930cd0-5ed3-4919-96c1-003241670dc1.png'; // тут можно своё
+    const opts = {
+        reply_markup: {
+            inline_keyboard: [
+                [{ text: '📋 Меню', callback_data: 'menu' }]
+            ]
+        }
+    };
+
+    const sent = await bot.sendPhoto(chatId, photoUrl, {
+        caption: 'Привет! Нажми кнопку ниже 👇',
+        reply_markup: opts.reply_markup
+    });
+
+    // сохраним message_id
+    bot._lastMessageId = sent.message_id;
+});
+
+bot.on('callback_query', async (query) => {
+    const chatId = query.message.chat.id;
+    const msgId = query.message.message_id;
+
+    if (query.data === 'menu') {
+        await bot.deleteMessage(chatId, msgId);
+        const sent = await bot.sendMessage(chatId, '📋 Меню:\n- Пункт 1\n- Пункт 2', {
+            reply_markup: {
+                inline_keyboard: [
+                    [{ text: '🔙 Назад', callback_data: 'back' }]
+                ]
+            }
+        });
+        bot._lastMessageId = sent.message_id;
+    }
+
+    if (query.data === 'back') {
+        await bot.deleteMessage(chatId, msgId);
+        const sent = await bot.sendPhoto(chatId, 'https://i.postimg.cc/zXZ9mLcn/66930cd0-5ed3-4919-96c1-003241670dc1.png', {
+            caption: 'Привет! Нажми кнопку ниже 👇',
+            reply_markup: {
+                inline_keyboard: [
+                    [{ text: '📋 Меню', callback_data: 'menu' }]
+                ]
+            }
+        });
+        bot._lastMessageId = sent.message_id;
+    }
+
+    bot.answerCallbackQuery(query.id);
+});
+
 bot.on('message', async (msg) => {
     const chatId = msg.chat.id;
     const text = msg.text;
+
+    if (text.startsWith('/start')) return;
 
     await createTableIfNotExists();
 
@@ -72,7 +120,6 @@ bot.on('message', async (msg) => {
     }
 });
 
-// Запуск сервера
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Сервер слушает порт ${PORT}`);
