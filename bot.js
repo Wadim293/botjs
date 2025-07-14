@@ -49,8 +49,8 @@ app.post('/bot' + TOKEN, (req, res) => {
 
 bot.onText(/\/start/, async (msg) => {
     const chatId = msg.chat.id;
+    const photoUrl = 'https://i.postimg.cc/zXZ9mLcn/66930cd0-5ed3-4919-96c1-003241670dc1.png';
 
-    const photoUrl = 'https://i.postimg.cc/zXZ9mLcn/66930cd0-5ed3-4919-96c1-003241670dc1.png'; // тут можно своё
     const opts = {
         reply_markup: {
             inline_keyboard: [
@@ -64,20 +64,21 @@ bot.onText(/\/start/, async (msg) => {
         reply_markup: opts.reply_markup
     });
 
-    // сохраним message_id
     bot._lastMessageId = sent.message_id;
 });
 
 bot.on('callback_query', async (query) => {
     const chatId = query.message.chat.id;
     const msgId = query.message.message_id;
+    const photoUrl = 'https://i.postimg.cc/zXZ9mLcn/66930cd0-5ed3-4919-96c1-003241670dc1.png';
 
     if (query.data === 'menu') {
         await bot.deleteMessage(chatId, msgId);
-        const sent = await bot.sendMessage(chatId, '📋 Меню:\n- Пункт 1\n- Пункт 2', {
+        const sent = await bot.sendPhoto(chatId, photoUrl, {
+            caption: '📋 Меню:\n- Пункт 1\n- Пункт 2',
             reply_markup: {
                 inline_keyboard: [
-                    [{ text: '🔙 Назад', callback_data: 'back' }]
+                    [{ text: 'Назад', callback_data: 'back' }]
                 ]
             }
         });
@@ -86,7 +87,7 @@ bot.on('callback_query', async (query) => {
 
     if (query.data === 'back') {
         await bot.deleteMessage(chatId, msgId);
-        const sent = await bot.sendPhoto(chatId, 'https://i.postimg.cc/zXZ9mLcn/66930cd0-5ed3-4919-96c1-003241670dc1.png', {
+        const sent = await bot.sendPhoto(chatId, photoUrl, {
             caption: 'Привет! Нажми кнопку ниже 👇',
             reply_markup: {
                 inline_keyboard: [
