@@ -10,8 +10,11 @@ const PG_CONFIG = {
     user: 'postgres',
     host: 'postgres.railway.internal',
     database: 'railway',
-    password: 'ewxzpRQumaihjomJrebtlnpwwPgWqgxt',
+    password: 'fcQCCCboiwWDqCdoJqhuNCtaWeSAcaXq',
     port: 5432,
+    ssl: {
+        rejectUnauthorized: false
+    }
 };
 
 // Инициализация базы
