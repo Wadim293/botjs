@@ -4,7 +4,7 @@ const TelegramBot = require('node-telegram-bot-api');
 const { Pool } = require('pg');
 
 const TOKEN = '7918446559:AAH7zcyqkHZu6CzebbZRjIATBGEp_Y7fhKc';
-const WEBHOOK_URL = 'https://99473a1996ff.ngrok-free.app/bot' + TOKEN;
+const WEBHOOK_URL = 'https://botjs-production-82da.up.railway.app/bot' + TOKEN;
 
 const PG_CONFIG = {
     user: 'postgres',
