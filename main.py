@@ -1,4 +1,3 @@
-import os
 import asyncio
 from aiogram import Bot, Dispatcher, types
 from aiogram.enums import ParseMode
@@ -6,9 +5,10 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiohttp import web
 
-API_TOKEN = os.getenv("API_TOKEN")
+API_TOKEN = "7918446559:AAH7zcyqkHZu6CzebbZRjIATBGEp_Y7fhKc"
+APP_URL = "https://botjs-production-82da.up.railway.app"
+
 WEBHOOK_PATH = f"/bot{API_TOKEN}"
-APP_URL = os.getenv("APP_URL")  # Railway URL вроде https://project.up.railway.app
 WEBHOOK_URL = f"{APP_URL}{WEBHOOK_PATH}"
 
 bot = Bot(
@@ -40,7 +40,7 @@ async def main():
     app.on_startup.append(on_startup)
     app.on_shutdown.append(on_shutdown)
 
-    port = int(os.getenv("PORT", 3000)) 
+    port = 8080
     runner = web.AppRunner(app)
     await runner.setup()
     site = web.TCPSite(runner, port=port)
